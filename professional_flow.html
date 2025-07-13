@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Monitor - Professional Data Flow</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap">
+    <style>
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 100%);
+            min-height: 100vh;
+            margin: 0;
+            color: #222;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 32px 24px;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+        }
+        .title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e7ef;
+            border-radius: 5px;
+            margin-bottom: 36px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0077B5 0%, #00A0DC 100%);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(.4,1.4,.6,1);
+        }
+        .flow-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .node {
+            background: #f1f5f9;
+            border: 2.5px solid #e0e7ef;
+            border-radius: 14px;
+            min-width: 120px;
+            min-height: 110px;
+            padding: 18px 16px 12px 16px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            transition: border-color 0.3s, background 0.3s;
+        }
+        .node .icon {
+            font-size: 2.1rem;
+            margin-bottom: 6px;
+        }
+        .node .label {
+            font-weight: 600;
+            color: #0077B5;
+            font-size: 1.08rem;
+            margin-bottom: 4px;
+        }
+        .node .desc {
+            color: #64748b;
+            font-size: 0.93rem;
+            margin-bottom: 6px;
+        }
+        .node .status {
+            display: inline-block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: 10px;
+            background: #e0e7ef;
+            color: #64748b;
+            margin-top: 4px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .node.active {
+            border-color: #0077B5;
+            background: #e0f2fe;
+        }
+        .node.active .status {
+            background: #0077B5;
+            color: #fff;
+        }
+        .node.success {
+            border-color: #22c55e;
+            background: #dcfce7;
+        }
+        .node.success .status {
+            background: #22c55e;
+            color: #fff;
+        }
+        .node.error {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        .node.error .status {
+            background: #ef4444;
+            color: #fff;
+        }
+        .arrow {
+            flex: 1 1 0;
+            height: 0;
+            position: relative;
+            z-index: 1;
+        }
+        .arrow svg {
+            display: block;
+            width: 100%;
+            height: 36px;
+        }
+        .arrow.animated svg path {
+            stroke-dasharray: 180;
+            stroke-dashoffset: 180;
+            animation: arrow-draw 0.7s forwards;
+        }
+        @keyframes arrow-draw {
+            to { stroke-dashoffset: 0; }
+        }
+        .data-packet {
+            position: absolute;
+            top: -38px;
+            left: 0;
+            width: 110px;
+            height: 38px;
+            background: linear-gradient(90deg, #0077B5 0%, #00A0DC 100%);
+            color: #fff;
+            border-radius: 19px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.02rem;
+            box-shadow: 0 2px 12px rgba(0,119,181,0.10);
+            opacity: 0;
+            transition: left 0.7s cubic-bezier(.4,1.4,.6,1), opacity 0.3s;
+            z-index: 10;
+        }
+        .log {
+            background: #f1f5f9;
+            border-radius: 10px;
+            padding: 18px 20px;
+            font-size: 1rem;
+            color: #334155;
+            min-height: 40px;
+            margin-bottom: 0;
+            margin-top: 18px;
+            font-family: 'Inter', monospace;
+        }
+        .replay-btn {
+            display: block;
+            margin: 32px auto 0 auto;
+            background: linear-gradient(90deg, #0077B5 0%, #00A0DC 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 36px;
+            border-radius: 22px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,119,181,0.10);
+            transition: background 0.3s, transform 0.2s;
+        }
+        .replay-btn:hover {
+            background: #0077B5;
+            transform: translateY(-2px);
+        }
+        @media (max-width: 900px) {
+            .flow-row { flex-direction: column; align-items: stretch; }
+            .arrow { min-width: 36px; }
+            .data-packet { left: 0 !important; top: 60px !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="title">LinkedIn Monitor Data Flow</div>
+        <div class="subtitle">A professional, step-by-step visualization of how your LinkedIn monitor processes data in real time</div>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="flow-row" id="flow-row">
+            <div class="node" id="node-config">
+                <div class="icon">⚙️</div>
+                <div class="label">Config</div>
+                <div class="desc">Read search terms & API keys</div>
+                <div class="status" id="status-config">Idle</div>
+            </div>
+            <div class="arrow" id="arrow-1">
+                <svg><path d="M0 18 Q50 36 100 18" stroke="#0077B5" stroke-width="3" fill="none"/></svg>
+            </div>
+            <div class="node" id="node-serpapi">
+                <div class="icon">🔍</div>
+                <div class="label">SerpAPI</div>
+                <div class="desc">Search Google for LinkedIn mentions</div>
+                <div class="status" id="status-serpapi">Idle</div>
+            </div>
+            <div class="arrow" id="arrow-2">
+                <svg><path d="M0 18 Q50 36 100 18" stroke="#0077B5" stroke-width="3" fill="none"/></svg>
+            </div>
+            <div class="node" id="node-filter">
+                <div class="icon">🔄</div>
+                <div class="label">Filter</div>
+                <div class="desc">Remove duplicates</div>
+                <div class="status" id="status-filter">Idle</div>
+            </div>
+            <div class="arrow" id="arrow-3">
+                <svg><path d="M0 18 Q50 36 100 18" stroke="#0077B5" stroke-width="3" fill="none"/></svg>
+            </div>
+            <div class="node" id="node-slack">
+                <div class="icon">📱</div>
+                <div class="label">Slack</div>
+                <div class="desc">Send alert to Slack</div>
+                <div class="status" id="status-slack">Idle</div>
+            </div>
+            <div class="arrow" id="arrow-4">
+                <svg><path d="M0 18 Q50 36 100 18" stroke="#0077B5" stroke-width="3" fill="none"/></svg>
+            </div>
+            <div class="node" id="node-storage">
+                <div class="icon">💾</div>
+                <div class="label">Storage</div>
+                <div class="desc">Save seen URLs</div>
+                <div class="status" id="status-storage">Idle</div>
+            </div>
+        </div>
+        <div class="data-packet" id="data-packet">Data Packet</div>
+        <div class="log" id="log"></div>
+        <button class="replay-btn" id="replay-btn">Replay</button>
+    </div>
+    <script src="professional_flow.js"></script>
+</body>
+</html> 
