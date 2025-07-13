@@ -1,135 +1,330 @@
-# LinkedIn Monitor - macOS Setup
+# LinkedIn Monitor - Mac Installation Guide
 
-A Python-based tool that monitors LinkedIn for tags and mentions of specified terms ("Apurv Bansal from Zenskar") and sends daily alerts to a Slack channel.
+A comprehensive guide to install and run the LinkedIn Monitor on macOS.
 
-## 🍎 macOS Quick Start
+## 🍎 Prerequisites
 
-### Prerequisites
-- macOS 10.14 or later
-- Python 3.7 or higher
-- Terminal app (built into macOS)
+- **macOS 10.15 (Catalina) or later**
+- **Internet connection** for downloading dependencies
+- **Terminal access** (built into macOS)
 
-### Installation
+## 🚀 Quick Installation
 
-1. **Download the project files** to your Mac
-2. **Open Terminal** (Applications → Utilities → Terminal)
-3. **Navigate to the project folder**:
+### Method 1: Automated Setup (Recommended)
+
+1. **Download the project:**
    ```bash
-   cd /path/to/linkedin-monitor
+   git clone https://github.com/CodeMystique01/linkedin-monitor.git
+   cd linkedin-monitor
    ```
-4. **Run the setup script**:
+
+2. **Run the automated installer:**
    ```bash
    chmod +x setup_mac.sh
    ./setup_mac.sh
    ```
 
-### Configuration
-
-1. **Edit the `.env` file** with your API credentials:
+3. **Configure your API keys:**
    ```bash
    nano .env
-   # or use any text editor you prefer
+   # or open with any text editor
    ```
 
-2. **Add your API keys**:
-   ```env
-   SERPAPI_KEY=your_serpapi_key_here
-   SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+4. **Start the monitor:**
+   ```bash
+   ./run_monitor.sh
    ```
 
-### Testing
+### Method 2: Manual Installation
 
-Test your setup:
+If you prefer to install manually or the automated script doesn't work:
+
+#### Step 1: Install Homebrew
 ```bash
-python3 test_monitor.py
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-### Running the Monitor
-
-Start the monitor:
+#### Step 2: Install Python
 ```bash
+brew install python@3.11
+```
+
+#### Step 3: Clone the Repository
+```bash
+git clone https://github.com/CodeMystique01/linkedin-monitor.git
+cd linkedin-monitor
+```
+
+#### Step 4: Create Virtual Environment
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### Step 5: Install Dependencies
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+#### Step 6: Setup Configuration
+```bash
+cp config.env.example .env
+# Edit .env with your API keys
+```
+
+## ⚙️ Configuration
+
+### Required API Keys
+
+1. **SerpAPI Key:**
+   - Go to [https://serpapi.com/](https://serpapi.com/)
+   - Sign up for a free account
+   - Copy your API key from the dashboard
+
+2. **Slack Webhook URL:**
+   - Go to your Slack workspace
+   - Navigate to Apps → Search for "Incoming Webhooks"
+   - Add the app to your workspace
+   - Choose the channel where you want alerts
+   - Copy the webhook URL
+
+### Edit Configuration File
+
+```bash
+# Open with nano
+nano .env
+
+# Or open with TextEdit
+open -a TextEdit .env
+```
+
+Update the `.env` file with your API keys:
+
+```env
+# SerpAPI Configuration
+SERPAPI_KEY=your_serpapi_key_here
+
+# Slack Configuration
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+
+# Monitoring Configuration
+SEARCH_TERMS=YourName,YourCompany,YourProduct
+CHECK_INTERVAL_MINUTES=30
+MAX_RESULTS_PER_SEARCH=10
+```
+
+## 🎮 Running the Monitor
+
+### Start the Monitor
+```bash
+./run_monitor.sh
+```
+
+### Run the Demo
+```bash
+./run_demo.sh
+```
+
+### Manual Commands
+```bash
+# Activate virtual environment
+source venv/bin/activate
+
+# Run the monitor
 python3 linkedin_monitor.py
+
+# Run the demo
+python3 demo.py
+
+# Deactivate virtual environment
+deactivate
 ```
 
-## 🚀 Mac-Specific Features
+## 📱 Visualizations
 
-- **Native Terminal Support**: Works with macOS Terminal
-- **Python 3**: Uses `python3` command (standard on macOS)
-- **Easy Setup**: One-command installation script
-- **Background Running**: Can run in background with `nohup`
-
-## 📱 Running in Background (Optional)
-
-To run the monitor in the background:
+### View Professional Data Flow
 ```bash
-nohup python3 linkedin_monitor.py > monitor.log 2>&1 &
+open professional_flow.html
 ```
 
-To check if it's running:
+### View Flowchart Animation
 ```bash
-ps aux | grep linkedin_monitor
+open flowchart.html
 ```
 
-To stop the background process:
+### View Original Visualization
 ```bash
-pkill -f linkedin_monitor.py
+open index.html
 ```
 
 ## 🔧 Troubleshooting
 
-### Python Issues
-```bash
-# Check Python version
-python3 --version
+### Common Issues
 
-# Install Python if needed (using Homebrew)
-brew install python3
-```
-
-### Permission Issues
+#### 1. "Permission denied" error
 ```bash
-# Make setup script executable
 chmod +x setup_mac.sh
-
-# Run setup
-./setup_mac.sh
+chmod +x run_monitor.sh
+chmod +x run_demo.sh
 ```
 
-### Package Installation Issues
+#### 2. Python not found
 ```bash
-# Upgrade pip
-python3 -m pip install --upgrade pip
+# Install Python via Homebrew
+brew install python@3.11
 
-# Install packages
-python3 -m pip install -r requirements.txt
+# Add to PATH (add to ~/.zshrc or ~/.bash_profile)
+export PATH="/opt/homebrew/bin:$PATH"
 ```
 
-## 📋 Files Included
+#### 3. Virtual environment issues
+```bash
+# Remove and recreate virtual environment
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-- `linkedin_monitor.py` - Main monitoring script
-- `setup_mac.sh` - macOS setup script
-- `test_monitor.py` - Test configuration
-- `requirements.txt` - Python dependencies
-- `config.env.example` - Configuration template
-- `README_MAC.md` - This file
+#### 4. API key errors
+- Verify your SerpAPI key is correct
+- Check your Slack webhook URL
+- Ensure the `.env` file is in the project directory
 
-## 🎯 What It Monitors
+#### 5. Network connectivity issues
+```bash
+# Test API connectivity
+curl -I https://serpapi.com/
+```
 
-- **Apurv Bansal from Zenskar** specifically
-- **LinkedIn tags and mentions** (`@bansalapurv`)
-- **Profile links** (`linkedin.com/in/bansalapurv`)
-- **Last 48 hours** of activity
-- **Daily checks** (once per 24 hours)
+### Debug Mode
 
-## 💰 Cost
+For detailed logging, edit `linkedin_monitor.py` and change:
+```python
+logging.basicConfig(level=logging.DEBUG, ...)
+```
 
-- **SerpAPI**: Free tier (100 searches/month)
-- **Slack**: Free (Incoming Webhooks)
-- **Hosting**: Run locally on your Mac
+## 🛠️ Advanced Setup
+
+### Run as Background Service
+
+#### Using launchd (Recommended)
+1. Create a plist file:
+```bash
+cat > ~/Library/LaunchAgents/com.linkedin.monitor.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.linkedin.monitor</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/path/to/your/linkedin-monitor/run_monitor.sh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/path/to/your/linkedin-monitor/monitor.log</string>
+    <key>StandardErrorPath</key>
+    <string>/path/to/your/linkedin-monitor/monitor_error.log</string>
+</dict>
+</plist>
+EOF
+```
+
+2. Load the service:
+```bash
+launchctl load ~/Library/LaunchAgents/com.linkedin.monitor.plist
+```
+
+#### Using cron
+```bash
+# Edit crontab
+crontab -e
+
+# Add this line to run every 30 minutes
+*/30 * * * * /path/to/your/linkedin-monitor/run_monitor.sh
+```
+
+### Custom Search Terms
+
+Edit the `.env` file to add more search terms:
+```env
+SEARCH_TERMS=YourName,YourCompany,YourProduct,YourBrand,YourKeywords
+```
+
+### Different Check Intervals
+
+```env
+CHECK_INTERVAL_MINUTES=1440  # Check once per day (24 hours)
+CHECK_INTERVAL_MINUTES=720   # Check twice per day (12 hours)
+CHECK_INTERVAL_MINUTES=60    # Check every hour
+CHECK_INTERVAL_MINUTES=30    # Check every 30 minutes
+```
+
+## 📊 Monitoring and Logs
+
+### View Logs
+```bash
+# View monitor logs
+tail -f linkedin_monitor.log
+
+# View system logs (if using launchd)
+tail -f ~/Library/Logs/com.linkedin.monitor.log
+```
+
+### Check Status
+```bash
+# Check if monitor is running
+ps aux | grep linkedin_monitor
+
+# Check virtual environment
+which python3
+```
+
+## 🔒 Security Notes
+
+- Keep your `.env` file secure and never commit it to version control
+- The `seen_urls.json` file contains URLs but no sensitive data
+- Consider using environment variables for production deployments
+- Regularly update your dependencies: `pip install --upgrade -r requirements.txt`
 
 ## 📞 Support
 
 If you encounter issues:
-1. Check the logs in `linkedin_monitor.log`
-2. Run `python3 test_monitor.py` to verify setup
-3. Ensure your API keys are correct in `.env` 
+
+1. **Check the logs:** `tail -f linkedin_monitor.log`
+2. **Run the demo:** `./run_demo.sh`
+3. **Verify configuration:** Check your `.env` file
+4. **Test connectivity:** Ensure internet access and API keys work
+
+## 🎯 Quick Reference
+
+| Command | Description |
+|---------|-------------|
+| `./setup_mac.sh` | Automated installation |
+| `./run_monitor.sh` | Start the monitor |
+| `./run_demo.sh` | Run the demo |
+| `source venv/bin/activate` | Activate virtual environment |
+| `deactivate` | Deactivate virtual environment |
+| `open professional_flow.html` | View professional animation |
+| `tail -f linkedin_monitor.log` | View live logs |
+
+## 🚀 Next Steps
+
+After installation:
+
+1. **Test the setup:** Run `./run_demo.sh`
+2. **Configure alerts:** Set up your Slack webhook
+3. **Customize search terms:** Edit the `.env` file
+4. **Monitor logs:** Check `linkedin_monitor.log`
+5. **Share the project:** Star the repository on GitHub!
+
+---
+
+**Happy monitoring! 🎉** 
