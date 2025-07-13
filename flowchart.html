@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Monitor - Flowchart Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: auto;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .flowchart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            min-width: 1200px;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .flow-step {
+            background: #f8f9fa;
+            border: 3px solid #e9ecef;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            min-width: 200px;
+            position: relative;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .flow-step.active {
+            border-color: #0077B5;
+            background: #e3f2fd;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 119, 181, 0.3);
+        }
+
+        .flow-step.completed {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #0077B5;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .step-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .step-status {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: #e9ecef;
+            color: #666;
+        }
+
+        .step-status.active {
+            background: #0077B5;
+            color: white;
+        }
+
+        .step-status.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: #0077B5;
+            animation: pulse 2s infinite;
+        }
+
+        .arrow.active {
+            animation: flowArrow 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes flowArrow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); color: #28a745; }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #0077B5, #00A0DC);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 181, 0.3);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .data-flow {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .data-flow h3 {
+            color: #0077B5;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .data-packet {
+            background: linear-gradient(45deg, #2196f3, #21cbf3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .decision-diamond {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 80px solid #ffc107;
+            position: relative;
+            margin: 20px auto;
+            transition: all 0.5s ease;
+        }
+
+        .decision-diamond.active {
+            border-bottom-color: #0077B5;
+            transform: scale(1.1);
+        }
+
+        .decision-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            width: 80px;
+        }
+
+        .loop-arrow {
+            position: absolute;
+            font-size: 1.5rem;
+            color: #0077B5;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #0077B5, #00A0DC);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            .flowchart {
+                min-width: auto;
+                gap: 20px;
+            }
+            
+            .flow-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 LinkedIn Monitor Flowchart</h1>
+            <p>Step-by-step visualization of the automated monitoring process</p>
+        </div>
+
+        <div class="flowchart-container">
+            <div class="controls">
+                <button class="control-btn" id="start-flow">▶️ Start Flow</button>
+                <button class="control-btn" id="pause-flow">⏸️ Pause</button>
+                <button class="control-btn" id="reset-flow">🔄 Reset</button>
+                <button class="control-btn" id="step-flow">⏭️ Step</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+
+            <div class="flowchart">
+                <!-- Row 1: Start -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-1">
+                        <div class="step-icon">🚀</div>
+                        <div class="step-title">Start Monitor</div>
+                        <div class="step-description">Initialize the LinkedIn monitoring system</div>
+                        <div class="step-status" id="status-1">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-1">↓</div>
+
+                <!-- Row 2: Configuration -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-2">
+                        <div class="step-icon">⚙️</div>
+                        <div class="step-title">Load Configuration</div>
+                        <div class="step-description">Read search terms, API keys, and settings from .env file</div>
+                        <div class="step-status" id="status-2">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-2">↓</div>
+
+                <!-- Row 3: Search -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-3">
+                        <div class="step-icon">🔍</div>
+                        <div class="step-title">Search LinkedIn</div>
+                        <div class="step-description">Use SerpAPI to search Google for LinkedIn mentions</div>
+                        <div class="step-status" id="status-3">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-3">↓</div>
+
+                <!-- Row 4: Decision -->
+                <div class="flow-row">
+                    <div class="decision-diamond" id="decision">
+                        <div class="decision-text">Found<br>Results?</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-4">↓</div>
+
+                <!-- Row 5: Filter -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-4">
+                        <div class="step-icon">🔄</div>
+                        <div class="step-title">Filter Duplicates</div>
+                        <div class="step-description">Compare with seen_urls.json to find new mentions</div>
+                        <div class="step-status" id="status-4">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-5">↓</div>
+
+                <!-- Row 6: Decision 2 -->
+                <div class="flow-row">
+                    <div class="decision-diamond" id="decision-2">
+                        <div class="decision-text">New<br>Mentions?</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-6">↓</div>
+
+                <!-- Row 7: Slack -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-5">
+                        <div class="step-icon">📱</div>
+                        <div class="step-title">Send Slack Alert</div>
+                        <div class="step-description">Create and send formatted alert to Slack channel</div>
+                        <div class="step-status" id="status-5">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-7">↓</div>
+
+                <!-- Row 8: Storage -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-6">
+                        <div class="step-icon">💾</div>
+                        <div class="step-title">Save URLs</div>
+                        <div class="step-description">Update seen_urls.json with new URLs</div>
+                        <div class="step-status" id="status-6">Waiting</div>
+                    </div>
+                </div>
+
+                <div class="arrow" id="arrow-8">↓</div>
+
+                <!-- Row 9: Loop -->
+                <div class="flow-row">
+                    <div class="flow-step" id="step-7">
+                        <div class="step-icon">⏰</div>
+                        <div class="step-title">Wait & Repeat</div>
+                        <div class="step-description">Wait for next check interval (30 minutes)</div>
+                        <div class="step-status" id="status-7">Waiting</div>
+                    </div>
+                </div>
+
+                <!-- Loop arrow back to start -->
+                <div class="arrow loop-arrow" id="loop-arrow">↻</div>
+            </div>
+
+            <div class="data-flow">
+                <h3>📊 Data Flow Log</h3>
+                <div id="data-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class FlowchartAnimation {
+            constructor() {
+                this.currentStep = 0;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.steps = [
+                    { id: 1, title: 'Start Monitor', duration: 2000 },
+                    { id: 2, title: 'Load Configuration', duration: 2000 },
+                    { id: 3, title: 'Search LinkedIn', duration: 3000 },
+                    { id: 4, title: 'Check Results', duration: 1500 },
+                    { id: 5, title: 'Filter Duplicates', duration: 2000 },
+                    { id: 6, title: 'Check New Mentions', duration: 1500 },
+                    { id: 7, title: 'Send Slack Alert', duration: 2500 },
+                    { id: 8, title: 'Save URLs', duration: 1500 },
+                    { id: 9, title: 'Wait & Repeat', duration: 2000 }
+                ];
+                
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                document.getElementById('start-flow').addEventListener('click', () => this.startFlow());
+                document.getElementById('pause-flow').addEventListener('click', () => this.pauseFlow());
+                document.getElementById('reset-flow').addEventListener('click', () => this.resetFlow());
+                document.getElementById('step-flow').addEventListener('click', () => this.nextStep());
+            }
+
+            startFlow() {
+                if (this.isRunning) return;
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                document.getElementById('start-flow').disabled = true;
+                document.getElementById('pause-flow').disabled = false;
+                
+                this.runFlow();
+            }
+
+            pauseFlow() {
+                this.isPaused = !this.isPaused;
+                document.getElementById('pause-flow').textContent = this.isPaused ? '▶️ Resume' : '⏸️ Pause';
+            }
+
+            resetFlow() {
+                this.currentStep = 0;
+                this.isRunning = false;
+                this.isPaused = false;
+                
+                // Reset all steps
+                for (let i = 1; i <= 7; i++) {
+                    this.resetStep(i);
+                }
+                
+                // Reset decisions
+                document.getElementById('decision').classList.remove('active');
+                document.getElementById('decision-2').classList.remove('active');
+                
+                // Reset arrows
+                for (let i = 1; i <= 8; i++) {
+                    document.getElementById(`arrow-${i}`).classList.remove('active');
+                }
+                
+                // Reset progress
+                document.getElementById('progress-fill').style.width = '0%';
+                
+                // Clear log
+                document.getElementById('data-log').innerHTML = '';
+                
+                // Reset buttons
+                document.getElementById('start-flow').disabled = false;
+                document.getElementById('pause-flow').disabled = true;
+                document.getElementById('pause-flow').textContent = '⏸️ Pause';
+            }
+
+            nextStep() {
+                if (this.currentStep < this.steps.length) {
+                    this.executeStep(this.currentStep);
+                    this.currentStep++;
+                }
+            }
+
+            async runFlow() {
+                for (let i = 0; i < this.steps.length; i++) {
+                    if (!this.isRunning || this.isPaused) break;
+                    
+                    await this.executeStep(i);
+                    this.currentStep = i + 1;
+                    
+                    if (i < this.steps.length - 1) {
+                        await this.wait(this.steps[i].duration);
+                    }
+                }
+                
+                if (this.isRunning && !this.isPaused) {
+                    // Loop back to start
+                    setTimeout(() => {
+                        this.resetFlow();
+                        this.startFlow();
+                    }, 2000);
+                }
+            }
+
+            async executeStep(stepIndex) {
+                const step = this.steps[stepIndex];
+                
+                switch (step.id) {
+                    case 1:
+                        this.activateStep(1, 'Starting monitor...');
+                        this.logData('🚀 Monitor initialized');
+                        break;
+                    case 2:
+                        this.activateStep(2, 'Loading configuration...');
+                        this.logData('⚙️ Configuration loaded: Search terms, API keys');
+                        break;
+                    case 3:
+                        this.activateStep(3, 'Searching LinkedIn...');
+                        this.logData('🔍 Searching for: "Your Company", "Your Product"');
+                        break;
+                    case 4:
+                        this.activateDecision('decision', 'Found results');
+                        this.logData('📊 Found 3 LinkedIn mentions');
+                        break;
+                    case 5:
+                        this.activateStep(4, 'Filtering duplicates...');
+                        this.logData('🔄 Checking against seen URLs');
+                        break;
+                    case 6:
+                        this.activateDecision('decision-2', 'New mentions found');
+                        this.logData('✅ Found 2 new mentions');
+                        break;
+                    case 7:
+                        this.activateStep(5, 'Sending Slack alert...');
+                        this.logData('📱 Sending alert to Slack channel');
+                        break;
+                    case 8:
+                        this.activateStep(6, 'Saving URLs...');
+                        this.logData('💾 Updated seen_urls.json');
+                        break;
+                    case 9:
+                        this.activateStep(7, 'Waiting for next check...');
+                        this.logData('⏰ Waiting 30 minutes for next check');
+                        break;
+                }
+                
+                // Update progress
+                const progress = ((stepIndex + 1) / this.steps.length) * 100;
+                document.getElementById('progress-fill').style.width = progress + '%';
+            }
+
+            activateStep(stepNumber, status) {
+                const step = document.getElementById(`step-${stepNumber}`);
+                const statusEl = document.getElementById(`status-${stepNumber}`);
+                const arrow = document.getElementById(`arrow-${stepNumber}`);
+                
+                step.classList.add('active');
+                statusEl.textContent = status;
+                statusEl.classList.add('active');
+                
+                if (arrow) {
+                    arrow.classList.add('active');
+                }
+                
+                setTimeout(() => {
+                    step.classList.remove('active');
+                    step.classList.add('completed');
+                    statusEl.classList.remove('active');
+                    statusEl.classList.add('completed');
+                    statusEl.textContent = 'Completed';
+                }, 2000);
+            }
+
+            activateDecision(decisionId, text) {
+                const decision = document.getElementById(decisionId);
+                decision.classList.add('active');
+                decision.querySelector('.decision-text').textContent = text;
+                
+                setTimeout(() => {
+                    decision.classList.remove('active');
+                }, 2000);
+            }
+
+            resetStep(stepNumber) {
+                const step = document.getElementById(`step-${stepNumber}`);
+                const statusEl = document.getElementById(`status-${stepNumber}`);
+                
+                step.classList.remove('active', 'completed');
+                statusEl.classList.remove('active', 'completed');
+                statusEl.textContent = 'Waiting';
+            }
+
+            logData(message) {
+                const logContainer = document.getElementById('data-log');
+                const logEntry = document.createElement('div');
+                logEntry.className = 'data-packet';
+                logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                
+                logContainer.appendChild(logEntry);
+                logContainer.scrollTop = logContainer.scrollHeight;
+                
+                // Limit log entries
+                if (logContainer.children.length > 10) {
+                    logContainer.removeChild(logContainer.firstChild);
+                }
+            }
+
+            wait(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the flowchart animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const flowchart = new FlowchartAnimation();
+        });
+    </script>
+</body>
+</html> 
