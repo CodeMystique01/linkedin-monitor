@@ -2,6 +2,8 @@
 """
 LinkedIn Mention Monitor
 Monitors LinkedIn for mentions of specified terms and sends alerts to Slack.
+
+Built with ❤️ by Bibhu Prasad Nayak
 """
 
 import os

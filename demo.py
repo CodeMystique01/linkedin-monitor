@@ -2,6 +2,8 @@
 """
 Demo script for LinkedIn Monitor
 Shows how the program works without requiring actual API keys
+
+Built with ❤️ by Bibhu Prasad Nayak
 """
 
 import json
