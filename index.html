@@ -22,25 +22,40 @@
             background: linear-gradient(45deg, #0077B5, #00A0DC);
             color: white;
             text-align: center;
-            padding: 16px 0;
-            font-weight: 700;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 15px rgba(0,119,181,0.4);
-            position: sticky;
+            padding: 20px 0;
+            font-weight: 800;
+            font-size: 1.4rem;
+            box-shadow: 0 6px 20px rgba(0,119,181,0.5);
+            position: fixed;
             top: 0;
-            z-index: 1000;
-            border-bottom: 3px solid #fff;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            border-bottom: 4px solid #fff;
             animation: glow 2s ease-in-out infinite alternate;
+            letter-spacing: 1px;
         }
 
         .top-credit strong {
-            font-size: 1.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 1.6rem;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.4);
+            color: #fff;
         }
 
         @keyframes glow {
-            from { box-shadow: 0 4px 15px rgba(0,119,181,0.4); }
-            to { box-shadow: 0 6px 20px rgba(0,119,181,0.6); }
+            from { 
+                box-shadow: 0 6px 20px rgba(0,119,181,0.5);
+                background: linear-gradient(45deg, #0077B5, #00A0DC);
+            }
+            to { 
+                box-shadow: 0 8px 25px rgba(0,119,181,0.7);
+                background: linear-gradient(45deg, #005a8b, #0077B5);
+            }
+        }
+
+        /* Add margin to body to account for fixed header */
+        body {
+            padding-top: 80px;
         }
 
         .container {
@@ -186,11 +201,50 @@
             font-size: 1.5rem;
             color: #0077B5;
             animation: pulse 2s infinite;
+            position: relative;
         }
 
         @keyframes pulse {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
+        }
+
+        /* Animated data flow */
+        .data-flow-animation {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #0077B5, #00A0DC);
+            border-radius: 50%;
+            animation: flowData 3s infinite;
+            z-index: 10;
+        }
+
+        @keyframes flowData {
+            0% {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .flow-diagram {
+            position: relative;
+            overflow: visible;
+        }
+
+        .component {
+            position: relative;
+            z-index: 5;
         }
 
         .demo-section {
@@ -371,7 +425,10 @@
                     <div class="component-desc">Search terms & API keys</div>
                 </div>
                 
-                <div class="arrow">→</div>
+                <div class="arrow">
+                    →
+                    <div class="data-flow-animation" style="animation-delay: 0s;"></div>
+                </div>
                 
                 <div class="component">
                     <div class="component-icon">🔍</div>
@@ -379,7 +436,10 @@
                     <div class="component-desc">Google search results</div>
                 </div>
                 
-                <div class="arrow">→</div>
+                <div class="arrow">
+                    →
+                    <div class="data-flow-animation" style="animation-delay: 0.6s;"></div>
+                </div>
                 
                 <div class="component">
                     <div class="component-icon">🔄</div>
@@ -387,7 +447,10 @@
                     <div class="component-desc">Remove duplicates</div>
                 </div>
                 
-                <div class="arrow">→</div>
+                <div class="arrow">
+                    →
+                    <div class="data-flow-animation" style="animation-delay: 1.2s;"></div>
+                </div>
                 
                 <div class="component">
                     <div class="component-icon">📱</div>
@@ -395,7 +458,10 @@
                     <div class="component-desc">Send alerts</div>
                 </div>
                 
-                <div class="arrow">→</div>
+                <div class="arrow">
+                    →
+                    <div class="data-flow-animation" style="animation-delay: 1.8s;"></div>
+                </div>
                 
                 <div class="component">
                     <div class="component-icon">💾</div>
@@ -461,6 +527,38 @@
                 component.style.transform = 'translateY(20px)';
                 component.style.transition = 'all 0.6s ease';
                 observer.observe(component);
+            });
+
+            // Add hover effects to components
+            document.querySelectorAll('.component').forEach(component => {
+                component.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.05)';
+                    this.style.boxShadow = '0 10px 25px rgba(0,119,181,0.3)';
+                });
+                
+                component.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                    this.style.boxShadow = '0 5px 15px rgba(0,119,181,0.2)';
+                });
+            });
+
+            // Add click effects to show data flow
+            document.querySelectorAll('.component').forEach((component, index) => {
+                component.addEventListener('click', function() {
+                    // Create a data packet animation
+                    const dataPacket = document.createElement('div');
+                    dataPacket.className = 'data-flow-animation';
+                    dataPacket.style.position = 'absolute';
+                    dataPacket.style.top = '50%';
+                    dataPacket.style.left = '0';
+                    dataPacket.style.animation = 'flowData 2s ease-in-out';
+                    
+                    this.appendChild(dataPacket);
+                    
+                    setTimeout(() => {
+                        dataPacket.remove();
+                    }, 2000);
+                });
             });
         });
     </script>
