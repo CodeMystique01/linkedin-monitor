@@ -1,77 +1,99 @@
-# LinkedIn Mention Monitor
+# LinkedIn Monitor - Modern Web Application 🚀
 
-A Python-based tool that monitors LinkedIn for tags and mentions of specified terms and sends alerts to a Slack channel.
+A comprehensive LinkedIn monitoring solution with a modern React frontend, FastAPI backend, and real-time dashboard for tracking mentions and tags across LinkedIn.
 
-## Features
+## ✨ Features
 
-- 🔍 **Automated monitoring** of LinkedIn for tags and mentions
-- 📱 **Slack integration** with rich message formatting
-- 🔄 **Duplicate detection** to avoid spam alerts
-- 📊 **Comprehensive logging** for monitoring and debugging
-- ⚙️ **Configurable** search terms, intervals, and settings
-- 💾 **Persistent storage** of seen URLs across restarts
+### 🖥️ Modern Web Interface
+- **Real-time Dashboard** with live monitoring status
+- **Configuration Management** with intuitive UI
+- **Mention History** with filtering and search
+- **System Logs** with real-time viewing
+- **Mobile Responsive** design for all devices
 
-## Prerequisites
+### 🔍 Advanced Monitoring
+- **Automated monitoring** of LinkedIn for tags and mentions
+- **Dual approach**: SerpAPI search + Selenium scraping
+- **Real-time alerts** via Slack integration
+- **Duplicate detection** to avoid spam alerts
+- **Configurable** search terms, intervals, and settings
 
-- Python 3.7 or higher
-- SerpAPI account (free tier available)
-- Slack workspace with Incoming Webhooks app
+### 🚀 Easy Deployment
+- **Docker containerization** for easy setup
+- **One-command deployment** with Docker Compose
+- **Auto-restart policies** for reliability
+- **Health checks** for monitoring
+- **Nginx reverse proxy** ready for production
 
-## Quick Start
+## 🎯 Quick Start
 
-### 1. Clone/Download the Project
+### Option 1: Docker (Recommended) 🐳
+
 ```bash
-# Clone the repository
-git clone <your-repository-url>
+# 1. Clone the repository
+git clone https://github.com/yourusername/linkedin-monitor.git
 cd linkedin-monitor
 
-# Or download and extract the ZIP file
-```
-
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configure API Keys
-
-Copy the example configuration file:
-```bash
+# 2. Configure your settings
 cp config.env.example .env
+# Edit .env with your API keys (see Configuration section)
+
+# 3. Run the application
+docker-compose up -d
+
+# 4. Open your browser
+# http://localhost:8000
 ```
 
-Edit the `.env` file with your API credentials:
+### Option 2: Manual Setup (Development) 🛠️
+
+#### Backend Setup
+```bash
+# Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
+
+# Install dependencies
+pip install -r requirements.txt
+pip install -r backend/requirements.txt
+
+# Configure environment
+cp config.env.example .env
+# Edit .env with your API keys
+
+# Start backend
+cd backend && python app.py
+```
+
+#### Frontend Setup
+```bash
+# Install and start frontend
+cd frontend
+npm install
+npm start
+```
+
+## ⚙️ Configuration
+
+### Required API Keys
+
+1. **SerpAPI Key** - Get from [serpapi.com](https://serpapi.com/) (free tier available)
+2. **Slack Webhook URL** - Create in your Slack workspace settings
+
+### Environment Variables (`.env`)
 
 ```env
 # SerpAPI Configuration
 SERPAPI_KEY=your_serpapi_key_here
 
-# Slack Configuration
+# Slack Configuration  
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 
 # Monitoring Configuration
 SEARCH_TERMS=YourName,YourCompany,YourProduct
 CHECK_INTERVAL_MINUTES=30
 MAX_RESULTS_PER_SEARCH=10
-```
-
-### 4. Get Your API Keys
-
-#### SerpAPI Key
-1. Go to [https://serpapi.com/](https://serpapi.com/)
-2. Sign up for a free account
-3. Copy your API key from the dashboard
-
-#### Slack Webhook URL
-1. Go to your Slack workspace
-2. Navigate to Apps → Search for "Incoming Webhooks"
-3. Add the app to your workspace
-4. Choose the channel where you want alerts
-5. Copy the webhook URL
-
-### 5. Run the Monitor
-```bash
-python linkedin_monitor.py
 ```
 
 ## Configuration Options
