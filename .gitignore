@@ -1,14 +1,3 @@
-# Environment variables and sensitive data
-.env
-*.env
-
-# Logs
-*.log
-linkedin_monitor.log
-
-# Data files
-seen_urls.json
-
 # Python
 __pycache__/
 *.py[cod]
@@ -32,12 +21,36 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
-venv/
-env/
-ENV/
-env.bak/
-venv.bak/
+# Environment variables
+.env
+config.env
+*.env
+
+# Logs
+*.log
+logs/
+linkedin_monitor.log
+linkedin_mentions_scraper.log
+backend.log
+
+# Database
+*.db
+*.sqlite3
+
+# JSON data files
+seen_urls.json
+mentions_history.json
+
+# Node.js
+frontend/node_modules/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# React build
+frontend/build/
+frontend/.eslintcache
 
 # IDE
 .vscode/
@@ -55,6 +68,25 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
+# Selenium
+chromedriver
+geckodriver
+*.crx
+
+# SSL certificates
+ssl/
+*.pem
+*.key
+*.crt
+
+# Docker
+.dockerignore
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
 # Temporary files
 *.tmp
-*.temp 
+*.temp
