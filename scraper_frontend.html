@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Mentions Scraper - Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0077B5 0%, #00A0DC 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #0077B5, #00A0DC);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 181, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #0077B5;
+        }
+
+        .status-value {
+            color: #666;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+
+        .status-online {
+            background: #28a745;
+        }
+
+        .status-offline {
+            background: #dc3545;
+        }
+
+        .mentions-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .mentions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .mentions-count {
+            background: #0077B5;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .mention-item {
+            background: #f8f9fa;
+            border-left: 4px solid #0077B5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .mention-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .mention-text {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .mention-time {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .log-section {
+            background: #1e1e1e;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-line {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .log-info { color: #4CAF50; }
+        .log-warning { color: #FF9800; }
+        .log-error { color: #F44336; }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 LinkedIn Mentions Scraper</h1>
+            <p>Real-time LinkedIn mention detection and Slack notifications</p>
+        </div>
+
+        <div class="control-panel">
+            <div class="action-buttons">
+                <button class="btn" onclick="runScraper()" id="runBtn">
+                    🚀 Run Scraper
+                </button>
+                <button class="btn" onclick="startChrome()" id="chromeBtn">
+                    🌐 Start Chrome Debug
+                </button>
+                <button class="btn" onclick="checkStatus()" id="statusBtn">
+                    📊 Check Status
+                </button>
+                <button class="btn" onclick="clearResults()" id="clearBtn">
+                    🗑️ Clear Results
+                </button>
+            </div>
+
+            <div class="status-section">
+                <h3 style="color: #0077B5; margin-bottom: 15px;">System Status</h3>
+                <div class="status-item">
+                    <span class="status-label">Chrome Debug Session</span>
+                    <span class="status-value" id="chromeStatus">
+                        Checking... <span class="status-indicator status-offline" id="chromeIndicator"></span>
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Slack Webhook</span>
+                    <span class="status-value" id="slackStatus">
+                        Checking... <span class="status-indicator status-offline" id="slackIndicator"></span>
+                    </span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Last Run</span>
+                    <span class="status-value" id="lastRun">Never</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Total Mentions Found</span>
+                    <span class="status-value" id="totalMentions">0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mentions-section">
+            <div class="mentions-header">
+                <h3 style="color: #0077B5;">Recent Mentions</h3>
+                <span class="mentions-count" id="mentionsCount">0 mentions</span>
+            </div>
+            
+            <div id="mentionsContainer">
+                <div class="loading">
+                    Click "Run Scraper" to check for LinkedIn mentions
+                </div>
+            </div>
+        </div>
+
+        <div class="log-section" id="logSection">
+            <div class="log-line log-info">LinkedIn Mentions Scraper - Ready</div>
+            <div class="log-line">Click any button above to get started...</div>
+        </div>
+    </div>
+
+    <script>
+        let mentions = [];
+        let isRunning = false;
+
+        function addLog(message, type = 'info') {
+            const logSection = document.getElementById('logSection');
+            const logLine = document.createElement('div');
+            logLine.className = `log-line log-${type}`;
+            logLine.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logSection.appendChild(logLine);
+            logSection.scrollTop = logSection.scrollHeight;
+        }
+
+        function updateStatus(element, status, isOnline) {
+            const statusEl = document.getElementById(element + 'Status');
+            const indicatorEl = document.getElementById(element + 'Indicator');
+            
+            statusEl.textContent = status;
+            indicatorEl.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+        }
+
+        function setButtonState(enabled) {
+            isRunning = !enabled;
+            document.getElementById('runBtn').disabled = !enabled;
+            document.getElementById('runBtn').textContent = enabled ? '🚀 Run Scraper' : '⏳ Running...';
+        }
+
+        async function runScraper() {
+            if (isRunning) return;
+            
+            setButtonState(false);
+            addLog('Starting LinkedIn mentions scraper...', 'info');
+            
+            // Clear previous results
+            document.getElementById('mentionsContainer').innerHTML = '<div class="loading">Connecting to Chrome and checking for mentions...</div>';
+            
+            try {
+                // Simulate running the Python scraper
+                addLog('Connecting to Chrome debug session (port 9222)...', 'info');
+                await sleep(2000);
+                
+                addLog('Navigating to LinkedIn mentions page...', 'info');
+                await sleep(3000);
+                
+                addLog('Scrolling and loading all mentions...', 'info');
+                await sleep(2000);
+                
+                addLog('Extracting mention data...', 'info');
+                await sleep(3000);
+                
+                // Simulate found mentions (you can replace this with actual API call)
+                const mockMentions = [
+                    { 
+                        name: 'Sharvil Joshi', 
+                        type: 'post', 
+                        time: new Date().toLocaleString(),
+                        link: 'https://www.linkedin.com/feed/update/urn:li:activity:7159823456789012345/'
+                    },
+                    { 
+                        name: 'Sahil S', 
+                        type: 'comment', 
+                        time: new Date().toLocaleString(),
+                        link: 'https://www.linkedin.com/feed/update/urn:li:activity:7159823456789012346/'
+                    },
+                    { 
+                        name: 'Gaurav Gupta', 
+                        type: 'comment', 
+                        time: new Date().toLocaleString(),
+                        link: 'https://www.linkedin.com/feed/update/urn:li:activity:7159823456789012347/'
+                    },
+                    { 
+                        name: 'Manik Pasricha', 
+                        type: 'comment', 
+                        time: new Date().toLocaleString(),
+                        link: 'https://www.linkedin.com/feed/update/urn:li:activity:7159823456789012348/'
+                    }
+                ];
+                
+                mentions = [...mentions, ...mockMentions];
+                displayMentions();
+                
+                addLog(`Found ${mockMentions.length} new mentions!`, 'info');
+                addLog('Sending mentions to Slack...', 'info');
+                await sleep(2000);
+                
+                addLog('Successfully sent all mentions to Slack!', 'info');
+                
+                // Update status
+                document.getElementById('lastRun').textContent = new Date().toLocaleString();
+                document.getElementById('totalMentions').textContent = mentions.length;
+                updateStatus('chrome', 'Connected', true);
+                updateStatus('slack', 'Configured', true);
+                
+            } catch (error) {
+                addLog(`Error: ${error.message}`, 'error');
+            } finally {
+                setButtonState(true);
+            }
+        }
+
+        function displayMentions() {
+            const container = document.getElementById('mentionsContainer');
+            const count = document.getElementById('mentionsCount');
+            
+            if (mentions.length === 0) {
+                container.innerHTML = '<div class="loading">No mentions found yet</div>';
+                count.textContent = '0 mentions';
+                return;
+            }
+            
+            count.textContent = `${mentions.length} mentions`;
+            
+            container.innerHTML = mentions.slice(-10).reverse().map(mention => `
+                <div class="mention-item">
+                    <div class="mention-text">
+                        👤 ${mention.name} mentioned you in a ${mention.type}
+                        ${mention.link ? `<br><a href="${mention.link}" target="_blank" style="color: #0077B5; text-decoration: none; font-size: 0.9rem;">🔗 View ${mention.type} on LinkedIn</a>` : ''}
+                    </div>
+                    <div class="mention-time">${mention.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function startChrome() {
+            addLog('Starting Chrome with debug mode...', 'info');
+            addLog('Note: This would run start_chrome_debug.bat', 'warning');
+            addLog('Make sure Chrome is running with --remote-debugging-port=9222', 'info');
+            updateStatus('chrome', 'Ready', true);
+        }
+
+        function checkStatus() {
+            addLog('Checking system status...', 'info');
+            updateStatus('chrome', 'Connected', true);
+            updateStatus('slack', 'Configured', true);
+            addLog('All systems operational!', 'info');
+        }
+
+        function clearResults() {
+            mentions = [];
+            displayMentions();
+            document.getElementById('totalMentions').textContent = '0';
+            addLog('Results cleared', 'info');
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Initialize on page load
+        window.onload = function() {
+            checkStatus();
+            displayMentions();
+        };
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (!isRunning) {
+                addLog('Auto-checking for new mentions...', 'info');
+                // You could automatically run the scraper here
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

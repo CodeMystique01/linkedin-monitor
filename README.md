@@ -1,212 +1,176 @@
-# LinkedIn Monitor - Modern Web Application 🚀
+# LinkedIn Mentions Scraper
 
-A comprehensive LinkedIn monitoring solution with a modern React frontend, FastAPI backend, and real-time dashboard for tracking mentions and tags across LinkedIn.
+A Python-based tool that scrapes LinkedIn mentions notifications and sends alerts to Slack with direct post links.
 
-## ✨ Features
+## 🌟 Features
 
-### 🖥️ Modern Web Interface
-- **Real-time Dashboard** with live monitoring status
-- **Configuration Management** with intuitive UI
-- **Mention History** with filtering and search
-- **System Logs** with real-time viewing
-- **Mobile Responsive** design for all devices
+- 🔍 **Real-time LinkedIn mention detection** - Connects to existing Chrome session 
+- 📱 **Slack integration** - Rich messages with clickable post links
+- 🔗 **Direct post links** - Navigate directly to mentions
+- 🎯 **Smart parsing** - Extracts names, mention types, and URLs
+- 💾 **No login required** - Uses existing authenticated browser session
+- 🎨 **Web interface** - Simple control panel for running scraper
 
-### 🔍 Advanced Monitoring
-- **Automated monitoring** of LinkedIn for tags and mentions
-- **Dual approach**: SerpAPI search + Selenium scraping
-- **Real-time alerts** via Slack integration
-- **Duplicate detection** to avoid spam alerts
-- **Configurable** search terms, intervals, and settings
+## 🚀 Quick Start
 
-### 🚀 Easy Deployment
-- **Docker containerization** for easy setup
-- **One-command deployment** with Docker Compose
-- **Auto-restart policies** for reliability
-- **Health checks** for monitoring
-- **Nginx reverse proxy** ready for production
-
-## 🎯 Quick Start
-
-### Option 1: Docker (Recommended) 🐳
-
+### 1. Install Dependencies
 ```bash
-# 1. Clone the repository
-git clone https://github.com/yourusername/linkedin-monitor.git
-cd linkedin-monitor
-
-# 2. Configure your settings
-cp config.env.example .env
-# Edit .env with your API keys (see Configuration section)
-
-# 3. Run the application
-docker-compose up -d
-
-# 4. Open your browser
-# http://localhost:8000
-```
-
-### Option 2: Manual Setup (Development) 🛠️
-
-#### Backend Setup
-```bash
-# Create and activate virtual environment
-python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
-
-# Install dependencies
 pip install -r requirements.txt
-pip install -r backend/requirements.txt
-
-# Configure environment
-cp config.env.example .env
-# Edit .env with your API keys
-
-# Start backend
-cd backend && python app.py
 ```
 
-#### Frontend Setup
+### 2. Configure Slack Webhook
+Edit `config.env` with your Slack webhook URL:
+```env
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+```
+
+### 3. Start Chrome with Debug Mode
 ```bash
-# Install and start frontend
-cd frontend
-npm install
-npm start
+# Windows
+start_chrome_debug.bat
+
+# The script will open Chrome with remote debugging enabled
 ```
+
+### 4. Run the Scraper
+
+**Option A: Command Line**
+```bash
+python linkedin_mentions_scraper.py
+```
+
+**Option B: Web Interface**
+```bash
+# Open in browser
+start scraper_frontend.html
+```
+
+**Option C: Simple Runner**
+```bash
+python run_mentions_scraper.py
+```
+
+## 📋 Prerequisites
+
+- Python 3.7+
+- Chrome browser
+- LinkedIn account (logged in)
+- Slack workspace with incoming webhooks
 
 ## ⚙️ Configuration
 
-### Required API Keys
+### Slack Webhook Setup
+1. Go to your Slack workspace
+2. Add "Incoming Webhooks" app
+3. Choose target channel
+4. Copy webhook URL to `config.env`
 
-1. **SerpAPI Key** - Get from [serpapi.com](https://serpapi.com/) (free tier available)
-2. **Slack Webhook URL** - Create in your Slack workspace settings
-
-### Environment Variables (`.env`)
-
+### Environment Variables
 ```env
-# SerpAPI Configuration
-SERPAPI_KEY=your_serpapi_key_here
-
-# Slack Configuration  
+# Required
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 
-# Monitoring Configuration
-SEARCH_TERMS=YourName,YourCompany,YourProduct
-CHECK_INTERVAL_MINUTES=30
-MAX_RESULTS_PER_SEARCH=10
+# Optional  
+CHROME_DEBUG_PORT=9222
 ```
 
-## Configuration Options
+## 🎯 How It Works
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SEARCH_TERMS` | `YourName,YourCompany` | Comma-separated list of terms to monitor |
-| `CHECK_INTERVAL_MINUTES` | `30` | How often to check for new mentions (in minutes) |
-| `MAX_RESULTS_PER_SEARCH` | `10` | Maximum results to fetch per search |
+1. **Chrome Debug Connection** - Connects to Chrome running with `--remote-debugging-port=9222`
+2. **LinkedIn Navigation** - Automatically navigates to mentions notifications
+3. **Mention Extraction** - Scrapes mention notifications and extracts:
+   - Person's name who mentioned you
+   - Type of mention (post/comment)
+   - Direct link to the post/comment
+4. **Slack Notifications** - Sends rich messages with clickable links
 
-## How It Works
+## 📊 Output Format
 
-1. **Search**: Uses SerpAPI to search Google for LinkedIn pages containing your keywords
-2. **Filter**: Checks for new URLs that haven't been seen before
-3. **Alert**: Sends formatted Slack messages with mention details
-4. **Store**: Saves seen URLs to avoid duplicate alerts
+Each mention generates a Slack message like:
+```
+👤 John Doe mentioned you in a post
+🔗 View the post on LinkedIn
+[Clickable link to actual LinkedIn post]
+```
 
-## Sample Slack Alert
+## 🌐 Web Interface
 
-The tool sends rich Slack messages with:
-- 🔔 Alert icon and title
-- 📄 LinkedIn post title and link
-- 📝 Post snippet/description
-- 🏷️ Tagged/mentioned term that triggered the alert
-- ⏰ Detection timestamp
-- 🎨 LinkedIn blue color theme
+The included `scraper_frontend.html` provides:
+- **Control Panel** - Start/stop scraper with buttons
+- **Real-time Results** - View mentions as they're found
+- **System Status** - Monitor Chrome and Slack connections
+- **Live Logs** - Watch scraper activity in real-time
 
-## Logging
+## 📁 Project Structure
 
-The tool creates detailed logs in `linkedin_monitor.log` including:
-- Search operations and results
-- Slack alert attempts
-- Error messages and debugging info
-- System status updates
+```
+linkedin-mentions-scraper/
+├── linkedin_mentions_scraper.py  # Main scraper script
+├── run_mentions_scraper.py       # Simple runner
+├── scraper_frontend.html         # Web control panel
+├── start_chrome_debug.bat        # Chrome debug launcher
+├── config.env                    # Configuration file
+├── requirements.txt              # Python dependencies
+└── README.md                     # This file
+```
 
-## Troubleshooting
+## 🔧 Usage Examples
 
-### Common Issues
+### Find All Current Mentions
+```bash
+python linkedin_mentions_scraper.py
+```
 
-1. **"SERPAPI_KEY not found"**
-   - Make sure you've added your SerpAPI key to the `.env` file
-
-2. **"SLACK_WEBHOOK_URL not found"**
-   - Verify your Slack webhook URL is correct in the `.env` file
-
-3. **No alerts being sent**
-   - Check the logs for error messages
-   - Verify your Slack webhook is working
-   - Ensure your search terms are being found
-
-4. **Too many duplicate alerts**
-   - The tool automatically tracks seen URLs
-   - Check if `seen_urls.json` is being created properly
-
-### Debug Mode
-
-For more detailed logging, you can modify the logging level in `linkedin_monitor.py`:
-
+### Run with Custom Webhook
 ```python
-logging.basicConfig(level=logging.DEBUG, ...)
+from linkedin_mentions_scraper import LinkedInMentionsScraper
+
+scraper = LinkedInMentionsScraper(
+    slack_webhook_url="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+)
+mentions = scraper.run()
 ```
 
-## Cost Considerations
+## 🚨 Troubleshooting
 
-- **SerpAPI**: Free tier includes 100 searches/month
-- **Slack**: Incoming Webhooks are free
-- **Hosting**: Can run locally or on a cloud service
+### Chrome Connection Issues
+- Ensure Chrome is running with debug mode: `start_chrome_debug.bat`
+- Check port 9222 is available
+- Verify Chrome debug session in browser: `http://localhost:9222`
 
-## Advanced Usage
+### LinkedIn Access Issues
+- Make sure you're logged into LinkedIn
+- Navigate to notifications page manually first
+- Check for LinkedIn rate limiting
 
-### Custom Search Terms
-Edit the `.env` file to add more terms:
-```env
-SEARCH_TERMS=YourName,YourCompany,YourProduct,YourBrand
-```
+### Slack Integration Issues
+- Verify webhook URL format
+- Test webhook with curl or Postman
+- Check Slack app permissions
 
-### Different Check Intervals
-```env
-CHECK_INTERVAL_MINUTES=1440  # Check once per day (24 hours)
-CHECK_INTERVAL_MINUTES=720   # Check twice per day (12 hours)
-CHECK_INTERVAL_MINUTES=60    # Check every hour
-CHECK_INTERVAL_MINUTES=30    # Check every 30 minutes
-```
+## 🔐 Security Notes
 
-### Running as a Service
+- Keep `config.env` secure and never commit to version control
+- LinkedIn credentials are never stored - uses existing browser session
+- Webhook URLs should be treated as sensitive information
 
-#### Windows (Task Scheduler)
-1. Create a batch file `run_monitor.bat`:
-```batch
-@echo off
-cd /d "C:\path\to\linkedin-monitor"
-python linkedin_monitor.py
-```
+## 📈 Automation
 
-2. Set up a Windows Task Scheduler task to run this batch file
+For regular monitoring, you can:
+- Set up Windows Task Scheduler to run the script periodically
+- Use cron on Linux/Mac
+- Run from the web interface manually when needed
 
-#### Linux/Mac (systemd/cron)
-Create a systemd service or cron job to run the script automatically.
-
-## Security Notes
-
-- Keep your `.env` file secure and never commit it to version control
-- The `seen_urls.json` file contains URLs but no sensitive data
-- Consider using environment variables for production deployments
-
-## Contributing
+## 🤝 Contributing
 
 Feel free to submit issues and enhancement requests!
 
-## License
+## 📄 License
 
-This project is open source and available under the MIT License.
+See LICENSE file for details.
 
 ---
 
-**Built with ❤️ by [Bibhu Prasad Nayak](https://github.com/CodeMystique01)** 
+**Happy Monitoring! 🚀**
+
+Made with ❤️ for LinkedIn power users

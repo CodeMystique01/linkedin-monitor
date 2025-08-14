@@ -380,8 +380,8 @@ class LinkedInMentionsScraper:
                         continue
                     processed_texts.add(text)
                     
-                    # Extract mention information
-                    mention_info = self._parse_mention_text(text)
+                    # Extract mention information (pass element to extract links)
+                    mention_info = self._parse_mention_text(text, element)
                     
                     if mention_info:
                         mentions.append(mention_info)
@@ -397,12 +397,13 @@ class LinkedInMentionsScraper:
             logger.error(f"Error extracting mentions: {e}")
             return mentions
     
-    def _parse_mention_text(self, text: str) -> Optional[Dict[str, str]]:
+    def _parse_mention_text(self, text: str, element=None) -> Optional[Dict[str, str]]:
         """
-        Parse mention text to extract name and type
+        Parse mention text to extract name, type, and post link
         
         Args:
             text: Raw text from the mention element
+            element: The web element containing the mention (to extract links)
             
         Returns:
             Dictionary with parsed mention information or None
@@ -428,6 +429,7 @@ class LinkedInMentionsScraper:
             # Try to extract person's name (usually the first line or contains a name pattern)
             person_name = None
             mention_type = "post"  # default
+            post_link = None
             
             # Look for patterns like "John Doe mentioned you in a post"
             for line in lines:
@@ -463,6 +465,10 @@ class LinkedInMentionsScraper:
                 if len(words) >= 2:
                     person_name = " ".join(words[:2])  # Take first two words as name
             
+            # Extract post/comment link from the element
+            if element:
+                post_link = self._extract_post_link(element)
+            
             if person_name:
                 # Clean up the name
                 person_name = person_name.strip('"\'.,!?:;')
@@ -472,12 +478,16 @@ class LinkedInMentionsScraper:
                 if not mention_type:
                     mention_type = "post"
                 
-                # Format the final message
-                formatted_message = f"{person_name} mentioned you in a {mention_type}"
+                # Format the final message with link if available
+                if post_link:
+                    formatted_message = f"{person_name} mentioned you in a {mention_type}: {post_link}"
+                else:
+                    formatted_message = f"{person_name} mentioned you in a {mention_type}"
                 
                 return {
                     'person_name': person_name,
                     'mention_type': mention_type,
+                    'post_link': post_link,
                     'formatted_message': formatted_message,
                     'raw_text': text
                 }
@@ -486,6 +496,71 @@ class LinkedInMentionsScraper:
             
         except Exception as e:
             logger.debug(f"Error parsing mention text: {e}")
+            return None
+    
+    def _extract_post_link(self, element) -> Optional[str]:
+        """
+        Extract the LinkedIn post/comment link from the mention element
+        
+        Args:
+            element: The web element containing the mention
+            
+        Returns:
+            LinkedIn post/comment URL or None
+        """
+        try:
+            # Common selectors for LinkedIn post/comment links
+            link_selectors = [
+                "a[href*='/feed/update/']",  # LinkedIn post links
+                "a[href*='/posts/']",        # Alternative post format
+                "a[href*='/activity-']",     # Activity links
+                "a[href*='linkedin.com/feed']", # Feed links
+                "a[href*='linkedin.com/posts']", # Posts links
+                "a[href*='commentUrn']",     # Comment links
+                "a[href*='activityUrn']",    # Activity URN links
+                "a[href*='feedUpdate']",     # Feed update links
+                "a",                         # Any link as fallback
+            ]
+            
+            for selector in link_selectors:
+                try:
+                    links = element.find_elements(By.CSS_SELECTOR, selector)
+                    for link in links:
+                        href = link.get_attribute('href')
+                        if href and 'linkedin.com' in href:
+                            # Filter out profile links and other non-post links
+                            if any(pattern in href for pattern in [
+                                '/feed/update/', '/posts/', '/activity-', 
+                                'feedUpdate', 'commentUrn', 'activityUrn'
+                            ]):
+                                return href
+                            # For generic links, check if they seem to be post-related
+                            elif '/feed/' in href or '/activity/' in href:
+                                return href
+                except Exception:
+                    continue
+            
+            # Try to find links in parent elements
+            try:
+                parent = element.find_element(By.XPATH, "..")
+                return self._extract_post_link(parent)
+            except:
+                pass
+            
+            # Try to find links in child elements more broadly
+            try:
+                all_links = element.find_elements(By.XPATH, ".//a[@href]")
+                for link in all_links:
+                    href = link.get_attribute('href')
+                    if href and 'linkedin.com' in href and '/feed/' in href:
+                        return href
+            except:
+                pass
+            
+            return None
+            
+        except Exception as e:
+            logger.debug(f"Error extracting post link: {e}")
             return None
     
     def send_mentions_to_slack(self, mentions: List[Dict[str, str]]) -> bool:
@@ -524,9 +599,25 @@ class LinkedInMentionsScraper:
             
             # Send individual mention messages
             for mention in mentions:
-                message = {
-                    "text": f"👤 {mention['formatted_message']}"
-                }
+                # Create rich Slack message with clickable link
+                if mention.get('post_link'):
+                    message = {
+                        "text": f"👤 {mention['person_name']} mentioned you in a {mention['mention_type']}",
+                        "attachments": [
+                            {
+                                "color": "#0077B5",
+                                "title": f"View the {mention['mention_type']} on LinkedIn",
+                                "title_link": mention['post_link'],
+                                "text": f"🔗 Click to view where {mention['person_name']} mentioned you",
+                                "footer": "LinkedIn Mentions Scraper",
+                                "ts": int(time.time())
+                            }
+                        ]
+                    }
+                else:
+                    message = {
+                        "text": f"👤 {mention['formatted_message']}"
+                    }
                 
                 response = requests.post(
                     self.slack_webhook_url,
@@ -608,7 +699,7 @@ def main():
     try:
         # You can modify the webhook URL here or set it as an environment variable
         scraper = LinkedInMentionsScraper(
-            slack_webhook_url="YOUR_SLACK_WEBHOOK_URL_HERE"  # Replace with your webhook URL
+            slack_webhook_url="https://hooks.slack.com/services/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"  # Replace with your webhook URL
         )
         
         mentions = scraper.run()
